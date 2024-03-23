@@ -1,13 +1,19 @@
 from flask import Flask, json, jsonify, render_template, request, redirect, session
 import logging
-from spotify_keys import CLIENT_ID, CLIENT_SECRET
+from spotify_keys import CLIENT_ID, CLIENT_SECRET, REDIRECT_URI
 import time
+import uuid
 from collections import defaultdict
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 
 
-log = logging.getLogger("logs")
+logging.basicConfig(filename="log.log",
+                    format='%(asctime)s %(message)s',
+                    filemode='w')
+
+log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 app = Flask(__name__)
 app.secret_key = "\xcb\xa0\x030\xc2\xe4x\xbb\x9fw\xdc/"
 
@@ -23,11 +29,49 @@ usa_idiot = "spotify:track:6nTiIhLmQ3FWhvrGafw2zj"
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=CLIENT_ID,
                                                                          client_secret=CLIENT_SECRET))
 
-log.info(sp)
 
-content = sp.artist_top_tracks(greenday_uri, country="US")
-# songs = content.items()
-response = sp.artist_top_tracks(urn)
+# content = sp.artist_top_tracks(greenday_uri, country="US")
+# response = sp.artist_top_tracks(urn)
+
+@app.route("/", methods=['POST','GET'])
+def playlist():
+    if request.method == "GET":
+        return  '''
+                <form method = post>
+                    <p><input type=text name=playlist>
+                </form>
+                '''
+    else:
+        link = request.form['playlist']
+        log.warning("link =", link)
+        # https://open.spotify.com/playlist/54HWyh4h3DkHAyP4TcojxC?si=72f6ab8d6fb149fd        
+        content = sp.playlist_items(link)
+        # if time, create error page for entering private playlist (error 404)
+
+        # initializes tracklist and gets all songs past 100 limit
+        tracks = []
+        tracks.extend(content['items'])
+        while content['next']:
+            content = sp.next(content)
+            tracks.extend(content['items'])
+
+
+        #gets rid of locally uploaded 
+        for item in tracks:
+            if item['is_local']:
+                tracks.remove(item)
+
+        tids = []
+        for t in range(0, len(tracks)):
+            tids.append(tracks[t]['track']['uri'])
+        
+        features = sp.audio_features(tids)
+        session['data'] = (features)
+
+        log.debug("features", features)
+        return redirect('/viz')
+
+
 
 @app.route('/track', methods=['GET', 'POST'])
 def song():
@@ -86,13 +130,7 @@ def viz():
     log.info(avg_features)
     return avg_features
     
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
-
-"""
- {"access_token":"
- BQDxMfdZkI-xDTaxCV59CqogMf6q8nTmaAmXGcyj1GpuRz8WJ4PSWY2Y8EKW6SX5bFmncIoFKi2b7GL0ULUJPaN3HHqeVZwyoSua9Xl-Y2B_Zc75u3U
- "token_type":"Bearer","expires_in":3600}
- 
-0XNa1vTidXlvJ2gHSsRi4A?si=-54XNiF0Su-PAXBxt9LQkw
- """
