@@ -1,5 +1,6 @@
 from flask import Flask, json, jsonify, render_template, request, redirect, session
 import logging
+from spotify_keys import CLIENT_ID, CLIENT_SECRET
 import time
 from collections import defaultdict
 import spotipy
@@ -10,9 +11,6 @@ log = logging.getLogger("logs")
 app = Flask(__name__)
 app.secret_key = "\xcb\xa0\x030\xc2\xe4x\xbb\x9fw\xdc/"
 
-
-CLIENT_ID = "83641f1ffde843d3abeba575870d5817"
-CLIENT_SECRET = "ffc7416953e04e499c0a956f339ada71"
 
 greenday_uri = "spotify:artist:7oPftvlwr6VrsViSDV7fJY"
 urn = 'spotify:artist:3jOstUTkEu2JkjvRdBA5Gu'
@@ -85,6 +83,7 @@ def viz():
         avg_features[f] = sum(features[f]) / size
     avg_features['key'] = int(avg_features['key'])
     avg_features['mode'] = int(avg_features['mode'])
+    log.info(avg_features)
     return avg_features
     
 
