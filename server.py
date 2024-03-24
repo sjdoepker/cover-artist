@@ -21,11 +21,6 @@ app.secret_key = "\xcb\xa0\x030\xc2\xe4x\xbb\x9fw\xdc/"
 greenday_uri = "spotify:artist:7oPftvlwr6VrsViSDV7fJY"
 urn = 'spotify:artist:3jOstUTkEu2JkjvRdBA5Gu'
 usa_idiot = "spotify:track:6nTiIhLmQ3FWhvrGafw2zj"
-# spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID, 
-#                                                     client_secret=CLIENT_SECRET,
-#                                                     redirect_uri = "http://127.0.0.1:5000/",
-#                                                     scope='user-library-read'))
-
 sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_id=CLIENT_ID,
                                                                          client_secret=CLIENT_SECRET))
 
@@ -33,7 +28,18 @@ sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials(client_
 # content = sp.artist_top_tracks(greenday_uri, country="US")
 # response = sp.artist_top_tracks(urn)
 
-@app.route("/", methods=['POST','GET'])
+@app.route("/", methods=['POST'])
+def handle_form():
+    data = request.json
+    content = data['content']
+    music_input = data['musicInput']
+    log.debug("handling form")
+
+    return content
+
+    return jsonify({'message': 'Data received successfully'})
+
+@app.route("/playlist", methods=['POST','GET'])
 def playlist():
     if request.method == "GET":
         return  '''
@@ -70,8 +76,6 @@ def playlist():
 
         log.debug("features", features)
         return redirect('/viz')
-
-
 
 @app.route('/track', methods=['GET', 'POST'])
 def song():
