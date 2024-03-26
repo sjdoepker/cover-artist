@@ -103,7 +103,6 @@ def form_to_features():
     content = data['content']
     music_input = data['musicInput']
     log.debug("handling form in flask")
-
     #sp_info will be a spotify object, content should be a string
     if music_input == "track":
         sp_info = track(content)
@@ -111,9 +110,11 @@ def form_to_features():
         sp_info = album(content)
     elif music_input == "playlist":
         sp_info = playlist(content)
+        #TODO: add in catch for 404 error from private playlist
     else:
         return Exception("Invalid music input type")
     
+
     return jsonify(viz(sp_info))
 
 

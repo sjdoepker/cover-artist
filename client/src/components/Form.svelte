@@ -2,6 +2,8 @@
 <script>
   let content = '';
   let musicInput = '';
+  export let data = {};
+  export let onSubmit = () => {}
 
   const submitForm = async () => {
     console.log("handling submit");
@@ -19,13 +21,17 @@
         throw new Error('Network response was not ok');
       }
 
-      const data = await response.json();
+      data = await response.json();
       console.log(data);
+      onSubmit(data);
+      return data;
       // Handle response from server
     } catch (error) {
       console.error('Error:', error);
+      return null;
       // Handle error
     }
+   
   };
 </script>
 
@@ -41,10 +47,15 @@
     <label for="track">Track</label><br>
     <input type="radio" id="album" name="music_input" value="album" bind:group={musicInput}>
     <label for="album">Album</label><br>
-    <input type="radio" id="playlist" name="music_input" value=":Playlist" bind:group={musicInput}>
+    <input type="radio" id="playlist" name="music_input" value="playlist" bind:group={musicInput}>
     <label for="Playlist">Playlist</label> 
     <br>
 
     <button type="submit">Submit</button>
   </form>
+
+  <!-- <div>
+    {JSON.stringify(data, null, 2)};
+  </div> -->
+
 </div>
