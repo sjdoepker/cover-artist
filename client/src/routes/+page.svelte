@@ -1,5 +1,6 @@
 <script>
     import Form from "../components/Form.svelte";
+    import Sketch from "../components/Sketch.svelte";
     /**
      * @type {string}
      */
@@ -17,6 +18,7 @@
             <pre>
                 {JSON.stringify(submittedData, null, 2)}
             </pre>
+            <Sketch />
             <!-- this is the feature data from the form! -->
         </div>
 </body>
